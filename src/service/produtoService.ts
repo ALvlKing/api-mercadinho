@@ -1,10 +1,10 @@
 import { prisma } from '../database/prisma';
-import { Consulta } from '../generated/prisma';
+import { Produto } from '../generated/prisma';
 
-type ConsultaCreateData = Omit<Consulta, 'id' | 'createdAt' | 'updatedAt'>;
-type ConsultaUpdateData = Partial<Omit<Consulta, 'id' | 'createdAt' | 'updatedAt' | 'pacienteId' | 'medicoId'>>;
+type ProdutoCreateData = Omit<Produto, 'id' | 'createdAt' | 'updatedAt'>;
+type ProdutoUpdateData = Partial<Omit<Produto, 'id' | 'createdAt' | 'updatedAt' | 'pacienteId' | 'medicoId'>>;
 
-export const create = async (data: ConsultaCreateData): Promise<Consulta> => {
+export const create = async (data: ProdutoCreateData): Promise<Produto> => {
   const { pacienteId, medicoId } = data;
   
   const paciente = await prisma.paciente.findUnique({ where: { id: pacienteId } });
@@ -13,13 +13,13 @@ export const create = async (data: ConsultaCreateData): Promise<Consulta> => {
   const medico = await prisma.medico.findUnique({ where: { id: medicoId } });
   if (!medico) throw new Error('Médico não encontrado');
 
-  return prisma.consulta.create({
+  return prisma.produto.create({
     data: { ...data, dataHora: new Date(data.dataHora) },
   });
 };
 
 export const getAll = async () => {
-  return prisma.consulta.findMany({
+  return prisma.produto.findMany({
     include: {
       paciente: { select: { nome: true, cpf: true } },
       medico: { select: { nome: true, especialidade: true } },
@@ -28,19 +28,20 @@ export const getAll = async () => {
 };
 
 export const getById = async (id: number) => {
-  return prisma.consulta.findUnique({
+  return prisma.produto.findUnique({
     where: { id },
     include: { paciente: true, medico: true },
   });
 };
 
-export const update = async (id: number, data: ConsultaUpdateData): Promise<Consulta> => {
-  return prisma.consulta.update({
+export const update = async (id: number, data: ProdutoUpdateData): Promise<Produto> => {
+  return prisma.produto.update({
     where: { id },
     data: { ...data, dataHora: data.dataHora ? new Date(data.dataHora) : undefined },
   });
 };
 
-export const remove = async (id: number): Promise<Consulta> => {
-  return prisma.consulta.delete({ where: { id } });
+export const remove = async (id: number): Promise<Produto> => {
+  return prisma.produto.delete({ where: { id } });
 };
+
